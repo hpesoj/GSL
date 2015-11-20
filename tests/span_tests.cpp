@@ -61,17 +61,17 @@ SUITE(span_tests)
 		span<int, 7, 4, 2> av1(nullptr, b1);
 #endif
 	
-		auto f = [&]() { span<int, 7, 4, 2> av1(nullptr); };
+		auto f = [&]() { span<int, 7, 4, 2> av1(emptyspan); };
 		CHECK_THROW(f(), fail_fast); 
 		
-		span<int, 7, dynamic_range, 2> av1(nullptr);
+		span<int, 7, dynamic_range, 2> av1(emptyspan);
 
 #ifdef CONFIRM_COMPILATION_ERRORS
 		static_bounds<size_t, 7, dynamic_range, 2> b12(b11);
 		b12 = b11;
 		b11 = b12;
 	
-		span<int, dynamic_range> av1 = nullptr;
+		span<int, dynamic_range> av1 = emptyspan;
 		span<int, 7, dynamic_range, 2> av2(av1);
 		span<int, 7, 4, 2> av2(av1);
 #endif
@@ -752,7 +752,7 @@ SUITE(span_tests)
 #endif
 
 		{
-			span<int, 0> empty_av(nullptr);
+			span<int, 0> empty_av(emptyspan);
 
 			CHECK(empty_av.bounds().index_bounds() == index<1>{ 0 });
 			CHECK_THROW(empty_av[0], fail_fast);
@@ -779,7 +779,7 @@ SUITE(span_tests)
 		}
 
 		{
-			span<int, 0> empty_av(nullptr);
+			span<int, 0> empty_av(emptyspan);
 			strided_span<int, 1> empty_sav{ empty_av, { 0, 1 } };
 
 			CHECK(empty_sav.bounds().index_bounds() == index<1>{ 0 });
@@ -1274,7 +1274,7 @@ SUITE(span_tests)
 
 	TEST(constructors)
 	{
-		span<int, dynamic_range> av(nullptr);
+		span<int, dynamic_range> av(emptyspan);
 		CHECK(av.length() == 0);
 
 		span<int, dynamic_range> av2;
@@ -1515,12 +1515,12 @@ SUITE(span_tests)
 			CHECK(a1[i] == a2[i]);
 	}
 
-	TEST(TestNullConstruction)
+	TEST(TestEmptyConstruction)
 	{
 		span<int, dynamic_range> av;
 		AssertNullEmptyProperties(av);
 
-		span<int, dynamic_range> av2(nullptr);
+		span<int, dynamic_range> av2(emptyspan);
 		AssertNullEmptyProperties(av2);
 	}
 
@@ -1713,8 +1713,25 @@ SUITE(span_tests)
 		}
 
 		{
-			auto av1 = nullptr;
-			auto av2 = nullptr;
+			auto av1 = emptyspan;
+			auto av2 = emptyspan;
+			CHECK(av1 == av2);
+			CHECK(!(av1 != av2));
+			CHECK(!(av1 < av2));
+			CHECK(av1 <= av2);
+			CHECK(!(av1 > av2));
+			CHECK(av1 >= av2);
+			CHECK(av2 == av1);
+			CHECK(!(av2 != av1));
+			CHECK(!(av2 < av1));
+			CHECK(av2 <= av1);
+			CHECK(!(av2 > av1));
+			CHECK(av2 >= av1);
+		}
+
+		{
+			auto av1 = emptyspan;
+			span<int> av2 = emptyspan;
 			CHECK(av1 == av2);
 			CHECK(!(av1 != av2));
 			CHECK(!(av1 < av2));
@@ -1732,7 +1749,27 @@ SUITE(span_tests)
 		{
 			int arr[] = { 2, 1 }; // bigger
 
-			span<int> av1 = nullptr;
+			span<int> av1 = emptyspan;
+			span<int> av2 = arr;
+
+			CHECK(av1 != av2);
+			CHECK(av2 != av1);
+			CHECK(!(av1 == av2));
+			CHECK(!(av2 == av1));
+			CHECK(av1 < av2);
+			CHECK(!(av2 < av1));
+			CHECK(av1 <= av2);
+			CHECK(!(av2 <= av1));
+			CHECK(av2 > av1);
+			CHECK(!(av1 > av2));
+			CHECK(av2 >= av1);
+			CHECK(!(av1 >= av2));
+		}
+
+		{
+			int arr[] = { 2, 1 }; // bigger
+
+			auto av1 = emptyspan;
 			span<int> av2 = arr;
 
 			CHECK(av1 != av2);

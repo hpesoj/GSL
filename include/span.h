@@ -1157,6 +1157,103 @@ namespace details
 
 }
 
+// An empty class type used to indicate an empty array.
+struct emptyspan_t
+{
+    // Remove the default constructor so that span can be initialized using the syntax "s = {}".
+    constexpr emptyspan_t(int)
+    {}
+};
+
+constexpr bool operator==(emptyspan_t, emptyspan_t)
+{
+	return true;
+}
+constexpr bool operator!=(emptyspan_t, emptyspan_t)
+{
+	return false;
+}
+constexpr bool operator<(emptyspan_t, emptyspan_t)
+{
+	return false;
+}
+constexpr bool operator<=(emptyspan_t, emptyspan_t)
+{
+	return true;
+}
+constexpr bool operator>(emptyspan_t, emptyspan_t)
+{
+	return false;
+}
+constexpr bool operator>=(emptyspan_t, emptyspan_t)
+{
+	return true;
+}
+
+template <typename T, std::ptrdiff_t... OtherDimensions>
+constexpr bool operator== (emptyspan_t, const span<T, OtherDimensions...> & other) noexcept
+{
+	return other.size() == 0;
+}
+template <typename T, std::ptrdiff_t... OtherDimensions>
+constexpr bool operator!= (emptyspan_t, const span<T, OtherDimensions...> & other) noexcept
+{
+	return !(emptyspan == other);
+}
+template <typename T, std::ptrdiff_t... OtherDimensions>
+constexpr bool operator< (emptyspan_t, const span<T, OtherDimensions...> & other) noexcept
+{
+	return emptyspan != other;
+}
+template <typename T, std::ptrdiff_t... OtherDimensions>
+constexpr bool operator<= (emptyspan_t, const span<T, OtherDimensions...> &) noexcept
+{
+	return true;
+}
+template <typename T, std::ptrdiff_t... OtherDimensions>
+constexpr bool operator> (emptyspan_t, const span<T, OtherDimensions...> &) noexcept
+{
+	return false;
+}
+template <typename T, std::ptrdiff_t... OtherDimensions>
+constexpr bool operator>= (emptyspan_t, const span<T, OtherDimensions...> & other) noexcept
+{
+	return emptyspan == other;
+}
+
+template <typename T, std::ptrdiff_t... OtherDimensions>
+constexpr bool operator== (const span<T, OtherDimensions...> & other, emptyspan_t) noexcept
+{
+	return emptyspan == other;
+}
+template <typename T, std::ptrdiff_t... OtherDimensions>
+constexpr bool operator!= (const span<T, OtherDimensions...> & other, emptyspan_t) noexcept
+{
+	return emptyspan != other;
+}
+template <typename T, std::ptrdiff_t... OtherDimensions>
+constexpr bool operator< (const span<T, OtherDimensions...> & other, emptyspan_t) noexcept
+{
+	return emptyspan > other;
+}
+template <typename T, std::ptrdiff_t... OtherDimensions>
+constexpr bool operator<= (const span<T, OtherDimensions...> & other, emptyspan_t) noexcept
+{
+	return emptyspan >= other;
+}
+template <typename T, std::ptrdiff_t... OtherDimensions>
+constexpr bool operator> (const span<T, OtherDimensions...> & other, emptyspan_t) noexcept
+{
+	return emptyspan < other;
+}
+template <typename T, std::ptrdiff_t... OtherDimensions>
+constexpr bool operator>= (const span<T, OtherDimensions...> & other, emptyspan_t) noexcept
+{
+	return emptyspan <= other;
+}
+
+// A constant of type emptyspan_t for convenience.
+constexpr emptyspan_t emptyspan{int()};
 
 template <typename ValueType, std::ptrdiff_t FirstDimension, std::ptrdiff_t... RestDimensions>
 class span
@@ -1199,7 +1296,7 @@ public:
         : span(ptr, bounds_type{ size })
     {}
 
-    constexpr span(std::nullptr_t) noexcept
+    constexpr span(emptyspan_t) noexcept
         : span(nullptr, bounds_type{})
     {}
 
